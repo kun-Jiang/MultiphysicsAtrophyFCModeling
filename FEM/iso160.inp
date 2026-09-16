@@ -1,0 +1,121 @@
+*Heading
+** Isotropic-diffusion control: white-matter diffusivity is 160 in all three directions.
+** Gray-matter diffusivity remains 16; only white-matter directionality differs from the anisotropic case.
+*Parameter
+** Diffusion parameters
+K22 = 160
+K11 = 0.1*K22
+K33 = 0.1*K22
+Kw = 160
+** Mechanical properties
+Gshear_white  = 1.15e3
+Kbulk_white   = 56.35e3
+Gshear_gray   = 2.07e3
+Kbulk_gray    = 101.43e3
+MatType_gray  = 0
+MatType_white = 1
+** MatType: 0 = isotropic, 1 = orthotropic
+** Protein-induced atrophy parameters
+G_0                    = -0.01
+Atrophy_rate_white     = -0.03
+Atrophy_rate_gray      = 1.5*Atrophy_rate_white
+Critical_concentration = 0.5
+Molar_volume = 0.0
+** Number of solution-dependent variables
+Depvar_Num = 13
+** Mesh and region definitions
+*Node, nset=NAll
+*include, input=Model\Node_1.inp
+*Element, type=C3D8T, elset=Ele_Mech
+*include, input=Model\Element_1.inp
+*Elset, elset=Ele_white_matter
+*include, input=Model\Ele_white_matter.inp
+*Elset, elset=Ele_gray_matter
+*include, input=Model\Ele_gray_matter.inp
+*Nset, nset=Fix_z
+*include, input=Model\Nset_Fix_xy.inp
+*Nset, nset=Fix_xy
+37311, 22058, 22061, 22059, 22055
+*include, input=Model\Elset_parcellation\Elset_parcellation.inp
+*include, input=Model\Nset_parcellation\Nset_parcellation.inp
+*Orientation, name=Ori-GrayOrientation, system=RECTANGULAR
+GrayOrientation
+1, 0.
+** Material sections and distributed orientation
+*Solid Section, elset=Ele_gray_matter, material=Mat_chem_iso
+,
+*Solid Section, elset=Ele_white_matter, orientation=Ori-GrayOrientation, material=Mat_chem_ortho
+,
+*Distribution, name=GrayOrientation, location=ELEMENT, table=GrayOrientationTable
+*include, input=Model\Distribution_table.inp
+*Distribution Table, name=GrayOrientationTable
+COORD3D, COORD3D
+** Gray-matter material
+*Material, name=Mat_chem_iso
+*user material, Type=Thermal, constants=3
+<K11>, 1., <Molar_volume>
+*user material, Type=Mechanical, constants=6
+<Gshear_gray>, <Kbulk_gray>, <MatType_gray>, <G_0>, <Atrophy_rate_gray>, <Critical_concentration>
+*Density
+1.,
+*Heat Generation
+*Depvar
+<Depvar_Num>,
+1, theta, theta
+2, theta_aging, theta_aging
+3, theta_protein, theta_protein
+4, theta_stress, theta_stress
+5, temp, temp
+6, hydrostatic, hydrostatic
+7, first_invariant, first_invariant
+8, HydroGrad_x, HydroGrad_x
+9, HydroGrad_y, HydroGrad_y
+10, HydroGrad_z, HydroGrad_z
+** White-matter material with isotropic diffusivity Kw
+*Material, name=Mat_chem_ortho
+*user material, Type=Thermal, constants=5
+<Kw>,<Kw>,<Kw>, 1., <Molar_volume>
+*user material, Type=Mechanical, constants=6
+<Gshear_white>, <Kbulk_white>, <MatType_white>, <G_0>, <Atrophy_rate_white>, <Critical_concentration>
+*Density
+1.,
+*Heat Generation
+*Depvar
+<Depvar_Num>,
+1, theta, theta
+2, theta_aging, theta_aging
+3, theta_protein, theta_protein
+4, theta_stress, theta_stress
+5, temp, temp
+6, hydrostatic, hydrostatic
+7, first_invariant, first_invariant
+8, HydroGrad_x, HydroGrad_x
+9, HydroGrad_y, HydroGrad_y
+10, HydroGrad_z, HydroGrad_z
+** Boundary conditions
+*Boundary
+Fix_xy, 1, 2
+Fix_z, 3, 3
+** Bilateral entorhinal initial seeding
+*Initial Conditions, type=TEMPERATURE
+Nset_1006_ctx-lh-entorhinal, 0.8
+Nset_2006_ctx-rh-entorhinal, 0.8
+** Coupled atrophy simulation over 10 years
+*Step, name=Atrophy, nlgeom=YES, inc=50000
+*Coupled Temperature-Displacement, deltmx=0.5
+0.02, 10., 1e-15, 0.02
+*Controls, reset
+*Controls, parameters=field, field=displacement
+0.01, , , , , , ,
+*Controls, parameters=field, field=temperature
+0.01, , , , , , ,
+*Controls, Parameters=Time Incrementation
+,,,,,,,20,,,,,,
+** Field output
+*Restart, write, frequency=0
+*Output, field, time interval=1
+*node output, nset=NAll
+U, NT
+*element output, elset=Ele_Mech
+SDV, EVOL, FV, LE, S, IVOL, TEMP
+*End Step

@@ -1,0 +1,35 @@
+# Generated MATLAB figures
+*.png
+*.fig
+
+# Operating-system and Office temporary files
+.DS_Store
+Thumbs.db
+~$*.xlsx
+*.inspect.ndjson
+
+# MATLAB temporary files
+*.asv
+*.m~
+
+# Abaqus generated files
+*.abq
+*.com
+*.dat
+*.ipm
+*.lck
+*.log
+*.mdl
+*.msg
+*.odb
+*.pac
+*.pes
+*.pmg
+*.prt
+*.res
+*.sel
+*.sim
+*.sta
+*.stt
+*.simdir/
+abaqus.rpy*
