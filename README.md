@@ -53,8 +53,8 @@ repository.
 
 ## Software Requirements
 
-- **MATLAB:** R2024a or later
-- **Abaqus:** 2024 or later (Abaqus/Standard)
+- **MATLAB:** R2024a (tested)
+- **Abaqus:** 2023 (tested; Abaqus/Standard)
 
 ---
 
